@@ -2,6 +2,7 @@ const http = require("http");
 const mysql = require("mysql2");
 const fs = require("fs");
 const url = require("url");
+const querystring = require('querystring');
 
 let errorMessages = [
   "Error inserting data into the database",
@@ -29,19 +30,19 @@ connection.connect((err) => {
   console.log("Connected to the database!");
 
   const createTableQuery = `
-CREATE TABLE IF NOT EXISTS patient (
-id INT(11) AUTO_INCREMENT PRIMARY KEY,
-name VARCHAR(100) NOT NULL,
-dateOfBirth DATETIME NOT NULL,
-) ENGINE=InnoDB;
-`;
+  CREATE TABLE IF NOT EXISTS patients (
+  id INT(11) AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  dateOfBirth DATETIME NOT NULL
+  ) ENGINE=InnoDB;
+  `;
 
   connection.query(createTableQuery, (err, result) => {
     if (err) throw err;
     console.log("Table is already created.");
   });
 
-  const query = "Select * from patient";
+  const query = "Select * from patients";
 
   connection.query(query, (err, rows) => {
     if (err) throw err;
@@ -58,19 +59,9 @@ http
       "Access-Control-Allow-Methods": "GET, POST",
     };
 
-    if (parsedUrl.pathname === "/") {
-      fs.readFile("index.html", "utf8", (err, data) => {
-        if (err) {
-          res.writeHead(500, { "Content-Type": "text/plain" });
-          res.end(errorMessages[2]);
-        } else {
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.end(data);
-        }
-      });
-    } else if (parsedUrl.pathname === "/insertData" && req.method === "POST") {
+    if (parsedUrl.pathname === "/insertData" && req.method === "POST") {
       const insertQuery =
-        "INSERT INTO patient (name, age, diagnosis) VALUES ('Sara Brown', 23, 'Healthy'), ('John Smith', 83, 'Healthy'), ('Jack Ma', 62, 'Healthy'), ('Elon Musk', 24, 'Healthy')";
+        "INSERT INTO patients (name, dateOfBirth) VALUES ('Sara Brown', '1901-01-01'), ('John Smith', '1941-01-01'), ('Jack Ma', '1961-01-30'), ('Elon Musk', '1999-01-01')";
 
       connection.query(insertQuery, (err, results) => {
         if (err) {

@@ -17,6 +17,7 @@
 
 
     <script>
+        let errorMessages = "Invalid query. Only SELECT and INSERT queries are allowed."
         function insertData() {
             const xhttp = new XMLHttpRequest();
 
@@ -53,7 +54,7 @@
                 };
                 xhttp.send();
             } else {
-                alert('Invalid query. Only SELECT and INSERT queries are allowed.');
+                alert(errorMessage);
             }
         }
     </script>

@@ -1,30 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     <button type="button" onclick="insertData()">Submit</button>
-    <div id="result"></div>
+    <div id="partA"></div>
+    <hr />
+    <textarea id="query" cols="30" rows="10"></textarea>
+    <button type="button" onclick="submitQuery()">Submit Query</button>
+    <div id="partB"></div>
+
 
     <script>
-        function insertData(){
+        function insertData() {
             const xhttp = new XMLHttpRequest();
 
             xhttp.open("POST", "http://localhost:3000/insertData", true);
             xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhttp.onreadystatechange = function(){
-                if(this.readyState == 4 && this.status == 200){
-                    document.getElementById("result").innerHTML = this.responseText;
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("partA").innerHTML = this.responseText;
                 }
             };
-     
-            xhttp.send();
 
+            xhttp.send();
         }
 
+        function submitQuery() {
+            const query = document.getElementById('query').value.trim();
+            const xhttp = new XMLHttpRequest();
+
+            if (query.toUpperCase().startsWith('INSERT')) {
+                xhttp.open("POST", "http://localhost:3000/submitQuery", true);
+                xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("partB").innerHTML = this.responseText;
+                    }
+                };
+                xhttp.send('query=' + encodeURIComponent(query));
+            } else if (query.toUpperCase().startsWith('SELECT')) {
+                xhttp.open("GET", "http://localhost:3000/submitQuery?query=" + encodeURIComponent(query), true);
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("partB").innerHTML = this.responseText;
+                    }
+                };
+                xhttp.send();
+            } else {
+                alert('Invalid query. Only SELECT and INSERT queries are allowed.');
+            }
+        }
     </script>
 </body>
+
 </html>

@@ -21,6 +21,15 @@ const connection = mysql.createConnection({
   database: "sql3653387",
 });
 
+function writeHead(res, statusCode) {
+  res.writeHead(statusCode, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+}
+
 connection.connect((err) => {
   if (err) {
     console.error("Error connecting to database:", err);
@@ -53,21 +62,23 @@ connection.connect((err) => {
 http
   .createServer(function (req, res) {
     const parsedUrl = url.parse(req.url, true);
-    const headers = {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST",
-    };
+
+    // Handling OPTIONS request here
+    if (req.method === "OPTIONS") {
+      writeHead(res, 204);
+      res.end();
+      return;
+    }
 
     if (parsedUrl.pathname === "/insertData" && req.method === "POST") {
       const insertQuery =
         "INSERT INTO patients (name, dateOfBirth) VALUES ('Sara Brown', '1901-01-01'), ('John Smith', '1941-01-01'), ('Jack Ma', '1961-01-30'), ('Elon Musk', '1999-01-01')";
       connection.query(insertQuery, (err, results) => {
         if (err) {
-          res.writeHead(500, headers);
+          writeHead(res, 500);
           res.end(JSON.stringify({ error: errorMessages[0] }));
         } else {
-          res.writeHead(200, headers);
+          writeHead(res, 200);
           res.end(JSON.stringify({ message: successMessages[0] }));
         }
       });
@@ -86,79 +97,24 @@ http
         ) {
           connection.query(userQuery, (err, results) => {
             if (err) {
-              res.writeHead(500, headers);
+              writeHead(res, 500);
               res.end(JSON.stringify({ error: errorMessages[3] }));
             } else if (results.length === 0) {
-              res.writeHead(404, headers);
+              writeHead(res, 404);
               res.end(JSON.stringify({ error: errorMessages[1] }));
             } else {
-              res.writeHead(200, headers);
+              writeHead(res, 200);
               res.end(JSON.stringify(results));
             }
           });
         } else {
-          res.writeHead(400, headers); // Bad Request for unsupported query types
+          writeHead(res, 400); // Bad Request for unsupported query types
           res.end(JSON.stringify({ error: "Unsupported query type." }));
         }
       });
     } else {
-      res.writeHead(404, { "Content-Type": "text/plain" });
-      res.end(errorMessages[1]);
-    }
-
-    if (parsedUrl.pathname === "/insertData" && req.method === "POST") {
-      const insertQuery =
-        "INSERT INTO patients (name, dateOfBirth) VALUES ('Sara Brown', '1901-01-01'), ('John Smith', '1941-01-01'), ('Jack Ma', '1961-01-30'), ('Elon Musk', '1999-01-01')";
-
-      connection.query(insertQuery, (err, results) => {
-        if (err) {
-          res.writeHead(500, headers);
-          res.end(
-            JSON.stringify({
-              message: errorMessages[0],
-            })
-          );
-        } else {
-          res.writeHead(200, headers);
-          res.end(JSON.stringify({ message: successMessages[0] }));
-          console.log(successMessages[0]);
-        }
-      });
-    } else if (parsedUrl.pathname === "/submitQuery") {
-      if (req.method === "POST") {
-        let body = "";
-        req.on("data", (chunk) => {
-          body += chunk.toString();
-        });
-        req.on("end", () => {
-          const query = querystring.parse(body).query;
-          connection.query(query, (err, results) => {
-            if (err) {
-              res.writeHead(500, headers);
-              res.end(JSON.stringify({ error: errorMessages[3] }));
-            } else {
-              res.writeHead(200, headers);
-              res.end(JSON.stringify(results));
-            }
-          });
-        });
-      } else if (req.method === "GET") {
-        const query = parsedUrl.query.query;
-        connection.query(query, (err, results) => {
-          if (err) {
-            res.writeHead(500, headers);
-            res.end(JSON.stringify({ error: errorMessages[3] }));
-          } else {
-            res.writeHead(200, headers);
-            res.end(JSON.stringify(results));
-          }
-        });
-      }
-    } else {
-      res.writeHead(404, { "Content-Type": "text/plain" });
-      res.end(errorMessages[1]);
+      writeHead(res, 404);
+      res.end(JSON.stringify({ error: errorMessages[1] }));
     }
   })
-  .listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+  .listen(port);

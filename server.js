@@ -1,14 +1,3 @@
-/**
- * GPT used:
-
-debug CORS issue 
-The writeHead function is a helper function that sets the necessary headers, including the CORS headers, on the response. By using this function to write the headers for all responses, you ensure that the CORS headers are always included.
-
-The handling of OPTIONS requests is necessary because of how CORS works for certain types of requests. When a web page tries to make a "not-so-simple" request (like a POST request with a JSON body) to a different domain, the browser first sends a preflight OPTIONS request to the server to check if the actual request is allowed. The server needs to respond to this OPTIONS request with the appropriate CORS headers. If it doesn't, or if the headers don't allow the actual request, the browser will block the actual request. The added code handles OPTIONS requests by responding with a 204 No Content status and the necessary CORS headers.
-
-The "Access-Control-Allow-Headers": "Content-Type" header is necessary to allow the Content-Type header in requests. This is important for your /submitQuery route, which expects POST requests with a Content-Type of application/json.
- */
-
 let errorMessages = [
   "Error inserting data into the database",
   "Not found",
@@ -79,7 +68,7 @@ http
       return;
     }
 
-    if (parsedUrl.pathname === "/lab5/api/v1/insertData" && req.method === "POST") {
+    if (parsedUrl.pathname === "/insertData" && req.method === "POST") {
       const insertQuery =
         "INSERT INTO patients (name, dateOfBirth) VALUES ('Sara Brown', '1901-01-01'), ('John Smith', '1941-01-01'), ('Jack Ma', '1961-01-30'), ('Elon Musk', '1999-01-01')";
       connection.query(insertQuery, (err, results) => {
@@ -91,7 +80,7 @@ http
           res.end(JSON.stringify({ message: successMessages[0] }));
         }
       });
-    } else if (parsedUrl.pathname === "/lab5/api/v1/submitQuery" && req.method === "POST") {
+    } else if (parsedUrl.pathname === "/submitQuery" && req.method === "POST") {
       let body = "";
       req.on("data", (chunk) => {
         body += chunk.toString();

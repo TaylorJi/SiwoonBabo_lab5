@@ -9,6 +9,7 @@ let errorMessages = [
   "Not found",
   "Internal Server Error",
   "Failed to execute query",
+  "Unsupported query type."
 ];
 let successMessages = ["Data inserted successfully!"];
 
@@ -109,7 +110,7 @@ http
           });
         } else {
           writeHead(res, 400); // Bad Request for unsupported query types
-          res.end(JSON.stringify({ error: "Unsupported query type." }));
+          res.end(JSON.stringify({ error: errorMessages[4] }));
         }
       });
     } else {

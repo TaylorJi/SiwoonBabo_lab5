@@ -13,11 +13,12 @@
     <hr />
     <textarea id="query" cols="30" rows="10"></textarea>
     <button type="button" onclick="submitQuery()">Submit Query</button>
+    <br /><br />
+    <hr />
     <div id="partB"></div>
 
 
     <script>
-        let errorMessages = "Invalid query. Only SELECT and INSERT queries are allowed."
         function insertData() {
             const xhttp = new XMLHttpRequest();
 
@@ -36,26 +37,30 @@
             const query = document.getElementById('query').value.trim();
             const xhttp = new XMLHttpRequest();
 
-            if (query.toUpperCase().startsWith('INSERT')) {
-                xhttp.open("POST", "http://localhost:3000/submitQuery", true);
-                xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        document.getElementById("partB").innerHTML = this.responseText;
+            xhttp.open("POST", "http://localhost:3000/submitQuery", true);
+            xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    const jsonResponse = JSON.parse(this.responseText);
+                    if (jsonResponse.error && this.status === 5) {
+                        document.getElementById("partB").innerHTML = jsonResponse.error; // Displaying the error message
+                    } else if (jsonResponse.error && this.status === 4) {
+                        document.getElementById("partB").innerHTML = jsonResponse.error; // Displaying a message for empty results
+                    } else {
+                        if (Array.isArray(jsonResponse)) {
+                            jsonResponse.forEach((row, index) => {
+                                jsonResponse[index] = JSON.stringify(row, null, 2); // Pretty-printing the JSON result
+                                document.getElementById("partB").innerHTML = jsonResponse.join("<br><br>");
+                            });
+                        }
                     }
-                };
-                xhttp.send('query=' + encodeURIComponent(query));
-            } else if (query.toUpperCase().startsWith('SELECT')) {
-                xhttp.open("GET", "http://localhost:3000/submitQuery?query=" + encodeURIComponent(query), true);
-                xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        document.getElementById("partB").innerHTML = this.responseText;
-                    }
-                };
-                xhttp.send();
-            } else {
-                alert(errorMessage);
-            }
+
+                } else if (this.readyState === 4) {
+                    document.getElementById("partB").innerHTML = this.responseText;
+                }
+            };
+            xhttp.send('query=' + encodeURIComponent(query));
+
         }
     </script>
 </body>

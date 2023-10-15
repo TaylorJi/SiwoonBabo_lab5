@@ -1,17 +1,17 @@
-const http = require("http");
-const mysql = require("mysql2");
-const fs = require("fs");
-const url = require("url");
-const querystring = require("querystring");
-
 let errorMessages = [
   "Error inserting data into the database",
   "Not found",
   "Internal Server Error",
   "Failed to execute query",
-  "Unsupported query type."
+  "Unsupported query type.",
+  "Table is already created."
 ];
 let successMessages = ["Data inserted successfully!"];
+
+const http = require("http");
+const mysql = require("mysql2");
+const url = require("url");
+const querystring = require("querystring");
 
 const port = 10000;
 
@@ -33,11 +33,8 @@ function writeHead(res, statusCode) {
 
 connection.connect((err) => {
   if (err) {
-    console.error("Error connecting to database:", err);
     return;
   }
-
-  console.log("Connected to the database!");
 
   const createTableQuery = `
   CREATE TABLE IF NOT EXISTS patients (
@@ -49,7 +46,7 @@ connection.connect((err) => {
 
   connection.query(createTableQuery, (err, result) => {
     if (err) throw err;
-    console.log("Table is already created.");
+    console.log(errorMessages[5]);
   });
 
   const query = "Select * from patients";
@@ -109,7 +106,7 @@ http
             }
           });
         } else {
-          writeHead(res, 400); // Bad Request for unsupported query types
+          writeHead(res, 400);
           res.end(JSON.stringify({ error: errorMessages[4] }));
         }
       });

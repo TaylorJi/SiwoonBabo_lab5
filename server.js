@@ -44,29 +44,44 @@ connection.connect((err) => {
     return;
   }
 
-  const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS patients (
-  id INT(11) AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  dateOfBirth DATETIME NOT NULL
-  ) ENGINE=InnoDB;
-  `;
+  // const createTableQuery = `
+  // CREATE TABLE IF NOT EXISTS patients (
+  // id INT(11) AUTO_INCREMENT PRIMARY KEY,
+  // name VARCHAR(100) NOT NULL,
+  // dateOfBirth DATETIME NOT NULL
+  // ) ENGINE=InnoDB;
+  // `;
 
-  connection.query(createTableQuery, (err, result) => {
-    if (err) throw err;
-    console.log(errorMessages[5]);
-  });
+  // connection.query(createTableQuery, (err, result) => {
+  //   if (err) throw err;
+  //   console.log(errorMessages[5]);
+  // });
 
-  const query = "Select * from patients";
+  // const query = "Select * from patients";
 
-  connection.query(query, (err, rows) => {
-    if (err) throw err;
-    console.log(successMessages[0], rows);
-  });
+  // connection.query(query, (err, rows) => {
+  //   if (err) throw err;
+  //   console.log(successMessages[0], rows);
+  // });
 });
 
 http
   .createServer(function (req, res) {
+    const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS patients (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    dateOfBirth DATETIME NOT NULL
+    ) ENGINE=InnoDB;
+    `;
+  
+    connection.query(createTableQuery, (err, result) => {
+      if (err) throw err;
+      console.log(errorMessages[5]);
+    });
+  
+
+
     const parsedUrl = url.parse(req.url, true);
 
     // Handling OPTIONS request here
